@@ -10,7 +10,8 @@ from utils.data_generator import ToyDataset, pad_collate
 
 
 def run():
-    USE_CUDA = torch.cuda.is_available()
+    #USE_CUDA = torch.cuda.is_available()
+    USE_CUDA = False
 
     config_path = os.path.join("experiments", FLAGS.config)
 
@@ -20,11 +21,11 @@ def run():
     with open(config_path, "r") as f:
         config = json.load(f)
 
-    config["gpu"] = torch.cuda.is_available()
+    config["gpu"] = USE_CUDA
 
     dataset = ToyDataset(5, 15)
     eval_dataset = ToyDataset(5, 15, type='eval')
-    BATCHSIZE = 30
+    BATCHSIZE = 2
     train_loader = data.DataLoader(dataset, batch_size=BATCHSIZE, shuffle=False, collate_fn=pad_collate, drop_last=True)
     eval_loader = data.DataLoader(eval_dataset, batch_size=BATCHSIZE, shuffle=False, collate_fn=pad_collate,
                                   drop_last=True)
