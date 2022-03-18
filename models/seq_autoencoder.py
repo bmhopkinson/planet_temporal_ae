@@ -25,13 +25,18 @@ class SequenceAutoencoder(nn.Module):
 
     def forward(self, input, input_len, target_len):
 
+        if input.is_cuda:
+            device = input.get_device()
+        else:
+            device = torch.device('cpu')
+
         #encoder
         output_encoder, (hidden, cell) = self.encoder(input, input_len)
 
         #decoder
         batch_size = input.size(0)
-        output = torch.zeros(batch_size, 1, self.input_size)  #initialize output/next input
-        output_ts = torch.zeros(batch_size, target_len, self.input_size)  #initialize output/next input
+        output = torch.zeros(batch_size, 1, self.input_size).to(device)  #initialize output/next input
+        output_ts = torch.zeros(batch_size, target_len, self.input_size).to(device)  #initialize output/next input
 
         for i in range(target_len):
             output, (hidden, cell) = self.decoder(output, hidden, cell)
