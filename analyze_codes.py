@@ -20,12 +20,15 @@ code = data[:,2:]
 
 # Dimensionality reduction via PCA
 scaler = StandardScaler()
-pca = PCA(n_components=4)
 X = scaler.fit_transform(code)
-pca.fit(X)
-print('hello')
 
-features = pca.transform(X)
+#pca = PCA(n_components=4)
+#pca.fit(X)
+#print('hello')
+
+#features = pca.transform(X)
+
+features = X
 
 # Clustering
 if cluster_alg_choice == 'KMeans':
