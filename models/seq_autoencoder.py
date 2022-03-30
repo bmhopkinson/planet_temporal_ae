@@ -43,3 +43,15 @@ class SequenceAutoencoder(nn.Module):
             output_ts[:, i, :] = output.squeeze(1)
 
         return output_ts
+
+    def encode(self, input, input_len):
+
+        if input.is_cuda:
+            device = input.get_device()
+        else:
+            device = torch.device('cpu')
+
+            # encoder
+        output_encoder, (hidden, cell) = self.encoder(input, input_len)
+
+        return hidden

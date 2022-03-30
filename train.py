@@ -14,10 +14,10 @@ from models.seq_autoencoder import SequenceAutoencoder
 from datasets.SR_timeseries import SR_Timeseries, pad_collate
 #from datasets.data_generator import ToyDataset, pad_collate
 
-dataset_SR = SR_Timeseries('./data/patch_average_ts_300m.txt')
+dataset_SR = SR_Timeseries('./data/patch_average_ts_30m.txt')
 lr_init = 1E-2
 num_epochs = 25
-model_output = 'temporal_AE_model.pt'
+model_output_path = 'temporal_AE_model.pt'
 code_size = 8
 
 args = {}
@@ -44,7 +44,7 @@ else:
 # dataset = ToyDataset(5, 15)
 # eval_dataset = ToyDataset(5, 15, type='eval')
 BATCHSIZE = 16
-train_loader = data.DataLoader(dataset_SR, batch_size=BATCHSIZE, shuffle=False, collate_fn=pad_collate, drop_last=True)
+train_loader = data.DataLoader(dataset_SR, batch_size=BATCHSIZE, shuffle=True, collate_fn=pad_collate, drop_last=True)
 eval_loader = data.DataLoader(dataset_SR, batch_size=BATCHSIZE, shuffle=False, collate_fn=pad_collate, drop_last=True)
 
 model = SequenceAutoencoder(args)  #RNNEncoder(args)
@@ -84,19 +84,23 @@ for epoch in range(num_epochs):
 
     if epoch_avg_loss < best_loss:
         best_loss = epoch_avg_loss
-        torch.save(model.state_dict(), model_output)
+        torch.save(model.state_dict(), model_output_path)
 
     #print('ran batch')
 
 orig_data = open('original_data.txt', 'w')
 ae_preds = open('autoencoder_pred.txt', 'w')
 
+model_best = SequenceAutoencoder(args)  #RNNEncoder(args)
+model_best.load_state_dict(torch.load(model_output_path))
+model_best.to(device)
+
 for batch in eval_loader:
     #run model
     x = batch['sr_data'].to(device)
     x_len = batch['lens']
     target_len = 16
-    output = model(x, x_len, target_len)
+    output = model_best(x, x_len, target_len)
 
     #write out data
     cpu = torch.device("cpu")
